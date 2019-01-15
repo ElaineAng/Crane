@@ -1,0 +1,5 @@
+S FileReader     FileReader     SplitLine
+B SplitLine      SplitLine      MaskBadWords FilterBadWords
+B MaskBadWords   MaskBadWords   AppendHello
+B FilterBadWords FilterBadWords AppendHello
+B AppendHello    AppendHello

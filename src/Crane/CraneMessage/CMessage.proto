@@ -1,0 +1,76 @@
+syntax = "proto3";
+package CraneMessage;
+
+enum TupleType {
+  INT = 0;
+  FLOAT = 1;
+  STRING = 2;
+}
+
+enum CompType {
+  SPOUT = 0;
+  BOLT = 1;
+}
+
+enum OpStatus {
+  OK = 0;
+  FIN = 1;
+  STA = 2;
+}
+
+message Node {
+  string host_name = 1;
+  string host_ip = 2;
+  int64 port = 3;
+}
+
+message Component {
+  string item_name = 1;
+  string ip = 2;
+  int64 port = 3;
+}
+message TopoItem {
+  CompType component_type = 1;
+  Component myself = 2;
+  string func_name = 3;
+  
+  // grouping contains a list of item_names where this item sends data to
+  repeated Component grouping = 4;
+}
+
+message Topology {
+  string job_bin_name = 1;
+  repeated TopoItem components = 2;
+}
+
+message Tuple {
+  repeated TupleType tuple_t = 1;
+  repeated int64 int_field = 2; // int64 in Go
+  repeated double double_field = 3; // float64 in Go
+  repeated string string_field = 4; // string in Go
+}
+
+message OpResponse {
+  OpStatus status = 1;
+  string ret_message = 2;
+}
+
+message FailureReportRequest {
+  Node failed_node = 1;
+}
+
+message OpRequest {
+  OpStatus status = 1;
+}
+
+service Crane {
+  rpc UploadTopo (Topology) returns (stream OpResponse) {}
+  rpc AddComponent (Topology) returns (OpResponse) {}
+  rpc FailureReport(FailureReportRequest) returns (OpResponse) {}
+  rpc FenceWorker(OpRequest) returns (OpResponse) {}
+}
+
+service Task {
+  rpc EmitTuple(stream Tuple) returns (OpResponse) {}
+  rpc StartSpout (OpRequest) returns (OpResponse) {}
+}

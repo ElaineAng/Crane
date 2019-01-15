@@ -1,0 +1,32 @@
+syntax = "proto3";
+package MembershipMessage;
+
+enum MsgType {
+  JOIN = 0; // one server join the group
+  UPDATE = 1; // server sends its latest membership list to other servers
+  LEAVE = 2; // one server leave the group
+  PING = 3;
+  ACK = 4;
+}
+
+enum SrvStatus {
+  ACTIVE = 0; // one server is active now
+  LEFT = 1; // one server has left the group gracefully
+  FAIL = 2; // one server has left the group abruptly
+}
+
+message MembershipListItem {
+  uint64 id = 1;
+  string ip = 2;
+  uint32 port = 3;
+  uint64 timestamp = 4;
+  SrvStatus status = 5;
+}
+
+message MembershipMessage {
+  MsgType type = 1;
+  uint32 srcPort = 2;
+  string srcIp = 3;
+    
+  repeated MembershipListItem list = 4; 
+}
